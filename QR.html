@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Código QR con Descarga</title>
+    <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+    <style>
+        /* ... Estilos Generales ... */
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            background-color: #f4f4f9;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        input[type="text"], input[type="file"] {
+            width: 90%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box; /* Asegura que el padding no cambie el ancho */
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+            margin-bottom: 5px;
+            margin-right: 5px; /* Espacio entre botones */
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        /* ESTILOS CLAVE PARA LA SUPERPOSICIÓN */
+        #qr-wrapper {
+            position: relative; 
+            display: inline-block; 
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+        #qr-logo {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%); 
+            width: 60px; 
+            height: 60px;
+            border-radius: 10px; 
+            border: 5px solid white; 
+            background-color: white; 
+            display: none; 
+            overflow: hidden; 
+        }
+        #logo-image { 
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Generador QR Personalizado</h1>
+        
+        <label for="qr-text">Introduce Texto o URL:</label>
+        <input type="text" id="qr-text" placeholder="Escribe aquí..." required>
+        
+        <label for="logo-upload" style="display: block; margin-top: 15px;">Sube tu Logo (PNG/JPG):</label>
+        <input type="file" id="logo-upload" accept="image/png, image/jpeg">
+        
+        <button onclick="generarQR()">Generar QR</button>
+        <button onclick="descargarQR()" id="btn-descargar" style="display:none;">Descargar QR</button>
+
+        <div id="qr-wrapper">
+            <div id="qrcode"></div>
+            <div id="qr-logo">
+                <img id="logo-image" src="" alt="Logo subido">
+            </div>
+        </div>
+        </div>
+
+    <script>
+        // Variables globales (para un acceso más fácil en la descarga)
+        const contenedorQR = document.getElementById('qrcode');
+        const logoWrapper = document.getElementById('qr-logo');
+        const logoImage = document.getElementById('logo-image');
+        const btnDescargar = document.getElementById('btn-descargar');
+
+        function generarQR() {
+            const texto = document.getElementById('qr-text').value;
+            const archivoLogo = document.getElementById('logo-upload').files[0];
+            
+            // Limpieza inicial
+            contenedorQR.innerHTML = '';
+            logoWrapper.style.display = 'none'; 
+            btnDescargar.style.display = 'none'; // Ocultar el botón hasta que se genere
+
+            if (!texto) {
+                alert('Por favor, introduce algún texto o URL.');
+                return;
+            }
+
+            // 1. Crear el Código QR (Nivel H)
+            const qrcode = new QRCode(contenedorQR, {
+                text: texto,
+                width: 250, 
+                height: 250,
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H 
+            });
+
+            // 2. Usar setTimeout para asegurar que el QR se ha renderizado antes de intentar superponer el logo
+            setTimeout(() => {
+                if (archivoLogo) {
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        logoImage.src = e.target.result;
+                        logoWrapper.style.display = 'block';
+                        btnDescargar.style.display = 'inline-block'; // Mostrar botón después de generar
+                    };
+                    
+                    reader.readAsDataURL(archivoLogo);
+                } else {
+                    btnDescargar.style.display = 'inline-block'; // Mostrar botón si no hay logo
+                }
+            }, 100); // Pequeña espera para renderizado
+        }
+
+
+        // FUNCIÓN CLAVE PARA LA DESCARGA
+        function descargarQR() {
+            // qrcode.js genera el QR dentro de un div, generalmente como un canvas o una tabla.
+            // Buscamos el elemento <canvas> que contiene el código QR
+            const canvas = contenedorQR.querySelector('canvas');
+
+            if (!canvas) {
+                alert('Primero debes generar el código QR.');
+                return;
+            }
+
+            // --- PASO 1: Descargar QR SIN LOGO (solo canvas) ---
+            if (logoWrapper.style.display !== 'block') {
+                const url = canvas.toDataURL("image/png");
+                const link = document.createElement('a');
+                link.download = 'codigo_qr.png';
+                link.href = url;
+                link.click();
+                return;
+            }
+
+            // --- PASO 2: Descargar QR CON LOGO (si está visible) ---
+            // Si el logo está visible, debemos dibujar el canvas y luego dibujar el logo encima
+            
+            const tempCanvas = document.createElement('canvas');
+            const context = tempCanvas.getContext('2d');
+            
+            // Establecer el tamaño del nuevo canvas (igual al QR)
+            tempCanvas.width = canvas.width;
+            tempCanvas.height = canvas.height;
+
+            // 1. Dibujar el QR (del canvas original) en el nuevo canvas
+            context.drawImage(canvas, 0, 0);
+
+            // 2. Dibujar el Logo encima
+            const logo = logoImage;
+            if (logo.complete) {
+                // Obtener las dimensiones y posición del logo para centrarlo
+                const logoSize = 60; // Debe coincidir con el tamaño en CSS
+                const padding = 5; // Debe coincidir con el borde en CSS
+                const totalSize = logoSize + 2 * padding; // 70px
+
+                const x = (tempCanvas.width - totalSize) / 2;
+                const y = (tempCanvas.height - totalSize) / 2;
+
+                // Dibujar un fondo blanco (el borde en el CSS)
+                context.fillStyle = 'white';
+                context.fillRect(x, y, totalSize, totalSize);
+
+                // Dibujar la imagen del logo
+                context.drawImage(logo, x + padding, y + padding, logoSize, logoSize);
+                
+                // 3. Forzar la Descarga
+                const finalUrl = tempCanvas.toDataURL("image/png");
+                const link = document.createElement('a');
+                link.download = 'codigo_qr_con_logo.png';
+                link.href = finalUrl;
+                link.click();
+                
+            } else {
+                alert('El logo aún no se ha cargado. Inténtalo de nuevo.');
+            }
+        }
+    </script>
+</body>
+</html>
