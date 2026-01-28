@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Generador QR HD - BAMX</title>
+        <title>Generador QR - BAMX</title>
         <link rel="stylesheet" href="assets/css/main.css" />
         <noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
         <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
@@ -177,35 +177,48 @@
             }
 
             function descargarQR() {
-                const canvas = contenedorQR.querySelector('canvas');
-                if (!canvas) return;
+    const canvas = contenedorQR.querySelector('canvas');
+    const textoInput = document.getElementById('qr-text').value;
+    if (!canvas) return;
 
-                const tempCanvas = document.createElement('canvas');
-                const context = tempCanvas.getContext('2d');
-                tempCanvas.width = canvas.width;
-                tempCanvas.height = canvas.height;
-                context.drawImage(canvas, 0, 0);
+    const tempCanvas = document.createElement('canvas');
+    const context = tempCanvas.getContext('2d');
 
-                if (logoWrapper.style.display === 'block') {
-                    const size = tempCanvas.width * 0.22; 
-                    const x = (tempCanvas.width - size) / 2;
-                    const y = (tempCanvas.height - size) / 2;
-                    context.fillStyle = 'white';
-                    // Fondo curvo para el logo en la descarga
-                    context.beginPath();
-                    context.roundRect(x, y, size, size, size * 0.2);
-                    context.fill();
-                    context.drawImage(logoImage, x + (size*0.1), y + (size*0.1), size*0.8, size*0.8);
-                }
-                
-                const link = document.createElement('a');
-                link.download = 'QR_BAMX.png';
-                link.href = tempCanvas.toDataURL("image/png");
-                link.click();
-            }
+    // Definimos un margen para que se vea el borde blanco (padding)
+    const padding = 60; 
+    tempCanvas.width = canvas.width + (padding * 2);
+    tempCanvas.height = canvas.height + (padding * 2);
+
+    // 1. Dibujar el fondo blanco con bordes redondeados
+    const borderRadius = 80; // Ajusta qué tan redondo quieres el borde blanco
+    context.fillStyle = '#ffffff';
+    context.beginPath();
+    context.roundRect(0, 0, tempCanvas.width, tempCanvas.height, borderRadius);
+    context.fill();
+
+    // 2. Dibujar el QR encima del fondo blanco
+    context.drawImage(canvas, padding, padding);
+
+    // 3. Lógica del logo (si existe)
+    if (logoWrapper.style.display === 'block') {
+        const size = canvas.width * 0.22; 
+        const x = (tempCanvas.width - size) / 2;
+        const y = (tempCanvas.height - size) / 2;
+        
+        context.fillStyle = 'white';
+        context.beginPath();
+        context.roundRect(x, y, size, size, size * 0.2);
+        context.fill();
+        context.drawImage(logoImage, x + (size * 0.1), y + (size * 0.1), size * 0.8, size * 0.8);
+    }
+    
+    // 4. Descarga con nombre dinámico
+    const nombreArchivo = textoInput.replace(/[^a-z0-9]/gi, '_').substring(0, 15) || 'QR_BAMX';
+    const link = document.createElement('a');
+    link.download = `QR_${nombreArchivo}.png`;
+    link.href = tempCanvas.toDataURL("image/png");
+    link.click();
+}
         </script>
     </body>
     </html>
-
-
-
