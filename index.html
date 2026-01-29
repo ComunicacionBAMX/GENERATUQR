@@ -29,18 +29,6 @@
         }
         .menu-logo img { height: 3.5rem; }
 
-        .icon-header {
-            width: 5rem;
-            height: 5rem;
-            line-height: 5rem;
-            border: solid 1px #ffffff;
-            border-radius: 100%;
-            text-align: center;
-            margin-bottom: 2rem;
-            margin-top: 5rem;
-        }
-        .icon-header .icon:before { font-size: 2rem; color: #ffffff; }
-
         /* CONTENEDOR AMPLIADO */
         .container {
             background-color: rgba(255, 255, 255, 0.05);
@@ -48,9 +36,10 @@
             border-radius: 20px; 
             border: 1px solid rgba(255, 255, 255, 0.1);
             width: 95%;
-            max-width: 550px; /* Ampliado para legibilidad */
+            max-width: 550px; 
             text-align: center;
             z-index: 5;
+            margin-top: 4rem; /* Espacio para compensar la falta del icono */
         }
 
         h1 {
@@ -73,7 +62,6 @@
             border-radius: 10px; 
         }
 
-        /* DISEÑO DE BOTÓN DE ARCHIVO */
         .custom-file-upload {
             display: block;
             width: 100%;
@@ -89,10 +77,9 @@
         .custom-file-upload:hover { border-color: #ffffff; background: rgba(255, 255, 255, 0.1); color: #fff; }
         #logo-upload { display: none; }
 
-        /* BOTÓN GENERAR RESALTADO */
         .btn-generate {
             width: 100%;
-            background-color: #28a745 !important; /* Verde éxito */
+            background-color: #28a745 !important;
             color: #ffffff !important;
             border: none;
             padding: 1rem;
@@ -144,10 +131,6 @@
         <div class="menu-logo"><img src="LOGOS/3.png" alt="Puebla"></div>
         <div class="menu-logo"><img src="LOGOS/5.png" alt="Tlaxcala"></div>
     </nav>
-
-    <div class="icon-header">
-        <span class="icon fa fa-qrcode"></span>
-    </div>
 
     <div class="container">
         <h1>Generador QR</h1>
@@ -246,5 +229,4 @@
     </script>
 </body>
 </html>
-
 
