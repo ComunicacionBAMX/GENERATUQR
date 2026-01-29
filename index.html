@@ -5,57 +5,50 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Generador QR - BAMX</title>
     <link rel="stylesheet" href="assets/css/main.css" />
-    <noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
     <style>
-        /* Estilo base sin imagen de fondo */
         body {
-            font-family: "Source Sans Pro", sans-serif;
-            background-color: #1b1f22; 
-            color: #ffffff;
+            background-color: #1b1f22 !important;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             min-height: 100vh;
             margin: 0;
-            padding: 20px;
         }
 
-        /* Logos superiores (Estilo Index) */
         #fixed-menu {
             position: fixed;
             top: 0;
-            left: 0;
             width: 100%;
             display: flex;
             justify-content: space-between;
             padding: 1rem 3rem;
             z-index: 10;
-            background: rgba(27, 31, 34, 0.8);
         }
-        .menu-logo img { height: 3rem; }
+        .menu-logo img { height: 3.5rem; }
 
-        /* Icono central superior (Estilo Index) */
         .icon-header {
-            width: 4rem;
-            height: 4rem;
-            line-height: 4rem;
+            width: 5rem;
+            height: 5rem;
+            line-height: 5rem;
             border: solid 1px #ffffff;
             border-radius: 100%;
             text-align: center;
-            margin-bottom: 1.5rem;
+            margin-bottom: 2rem;
+            margin-top: 5rem;
         }
-        .icon-header .icon:before { font-size: 1.75rem; }
+        .icon-header .icon:before { font-size: 2rem; color: #ffffff; }
 
-        /* CONTENEDOR ORIGINAL (Sin tocar su lógica de diseño) */
+        /* CONTENEDOR AMPLIADO */
         .container {
             background-color: rgba(255, 255, 255, 0.05);
-            padding: 30px;
+            padding: 40px;
             border-radius: 20px; 
             border: 1px solid rgba(255, 255, 255, 0.1);
-            width: 100%;
-            max-width: 400px;
+            width: 95%;
+            max-width: 550px; /* Ampliado para legibilidad */
             text-align: center;
             z-index: 5;
         }
@@ -67,11 +60,12 @@
             border-bottom: 1px solid #ffffff;
             padding-bottom: 0.5rem;
             margin-bottom: 2rem;
+            color: #ffffff;
         }
 
-        input[type="text"], input[type="file"] {
+        input[type="text"] {
             width: 100%;
-            padding: 0.75rem;
+            padding: 0.85rem;
             margin-bottom: 1.5rem;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.2);
@@ -79,14 +73,46 @@
             border-radius: 10px; 
         }
 
-        button {
+        /* DISEÑO DE BOTÓN DE ARCHIVO */
+        .custom-file-upload {
+            display: block;
             width: 100%;
-            background-color: transparent;
-            color: #ffffff;
-            border: 1px solid #ffffff;
-            padding: 0.75rem;
+            padding: 0.85rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px dashed rgba(255, 255, 255, 0.4);
+            border-radius: 10px;
+            color: #bbb;
+            cursor: pointer;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        .custom-file-upload:hover { border-color: #ffffff; background: rgba(255, 255, 255, 0.1); color: #fff; }
+        #logo-upload { display: none; }
+
+        /* BOTÓN GENERAR RESALTADO */
+        .btn-generate {
+            width: 100%;
+            background-color: #28a745 !important; /* Verde éxito */
+            color: #ffffff !important;
+            border: none;
+            padding: 1rem;
             margin-bottom: 1rem;
             border-radius: 10px; 
+            text-transform: uppercase;
+            cursor: pointer;
+            font-weight: 800;
+            letter-spacing: 0.1rem;
+            transition: transform 0.2s;
+        }
+        .btn-generate:hover { transform: scale(1.02); background-color: #218838 !important; }
+
+        .btn-download {
+            width: 100%;
+            background-color: transparent;
+            color: #ffffff !important;
+            border: 1px solid #ffffff;
+            padding: 0.85rem;
+            border-radius: 10px;
             text-transform: uppercase;
             cursor: pointer;
         }
@@ -97,67 +123,64 @@
             background: #ffffff;
             padding: 15px;
             border-radius: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            width: 100%;
-            max-width: 250px;
-            box-sizing: border-box;
-            overflow: hidden;
+            width: 250px;
         }
-
-        #qrcode canvas, #qrcode img {
-            width: 100% !important; 
-            height: auto !important;
-            display: block;
-        }
+        #qrcode canvas, #qrcode img { width: 100% !important; height: auto !important; }
 
         #qr-logo {
             position: absolute;
-            top: 50%;
-            left: 50%;
+            top: 50%; left: 50%;
             transform: translate(-50%, -50%); 
-            width: 50px; 
-            height: 50px;
-            border-radius: 10px; 
-            border: 4px solid white; 
-            background-color: white; 
+            width: 50px; height: 50px;
+            background-color: white; border: 4px solid white; border-radius: 10px;
             display: none; 
         }
         #logo-image { width: 100%; height: 100%; object-fit: contain; }
     </style>
 </head>
-<body>
+<body class="is-preload">
 
     <nav id="fixed-menu">
-        <div class="menu-logo left"><img src="LOGOS/3.png" alt="Logo Izquierda" /></div>
-        <div class="menu-logo right"><img src="LOGOS/5.png" alt="Logo Derecha" /></div>
+        <div class="menu-logo"><img src="LOGOS/3.png" alt="Puebla"></div>
+        <div class="menu-logo"><img src="LOGOS/5.png" alt="Tlaxcala"></div>
     </nav>
 
     <div class="icon-header">
-        <span class="icon fa-qrcode"></span>
+        <span class="icon fa fa-qrcode"></span>
     </div>
 
     <div class="container">
         <h1>Generador QR</h1>
         
         <input type="text" id="qr-text" placeholder="URL o Texto aquí..." required>
-        <input type="file" id="logo-upload" accept="image/png, image/jpeg">
         
-        <button onclick="generarQR()">Generar QR</button>
-        <button onclick="descargarQR()" id="btn-descargar" style="display:none;">Descargar PNG</button>
+        <label for="logo-upload" class="custom-file-upload" id="file-label">
+            <i class="fa fa-cloud-upload"></i> Seleccionar logo (Opcional)
+        </label>
+        <input type="file" id="logo-upload" accept="image/png, image/jpeg" onchange="updateFileName()">
+        
+        <button class="btn-generate" onclick="generarQR()">Generar QR</button>
+        <button class="btn-download" onclick="descargarQR()" id="btn-descargar" style="display:none;">Descargar PNG</button>
 
         <div id="qr-wrapper">
             <div id="qrcode"></div>
-            <div id="qr-logo">
-                <img id="logo-image" src="" alt="Logo">
-            </div>
+            <div id="qr-logo"><img id="logo-image" src="" alt="Logo"></div>
         </div>
     </div>
 
-    <footer id="footer" style="margin-top: 2rem;">
+    <footer id="footer" style="margin-top: 2rem; padding-bottom: 2rem;">
         <p class="copyright">&copy; GENERADOR QR. <a href="https://www.bapuebla.org.mx/" target="_blank">BAMX PUEBLA</a>.</p>
     </footer>
 
     <script>
+        function updateFileName() {
+            const input = document.getElementById('logo-upload');
+            const label = document.getElementById('file-label');
+            if (input.files.length > 0) {
+                label.innerHTML = '<i class="fa fa-check"></i> ' + input.files[0].name;
+            }
+        }
+
         const contenedorQR = document.getElementById('qrcode');
         const logoWrapper = document.getElementById('qr-logo');
         const logoImage = document.getElementById('logo-image');
@@ -168,15 +191,11 @@
             const archivoLogo = document.getElementById('logo-upload').files[0];
             contenedorQR.innerHTML = '';
             logoWrapper.style.display = 'none'; 
-
             if (!texto) return;
 
             new QRCode(contenedorQR, {
-                text: texto,
-                width: 1000, 
-                height: 1000,
-                colorDark : "#000000",
-                colorLight : "#ffffff",
+                text: texto, width: 1000, height: 1000,
+                colorDark : "#000000", colorLight : "#ffffff",
                 correctLevel : QRCode.CorrectLevel.H 
             });
 
@@ -189,29 +208,23 @@
                         btnDescargar.style.display = 'block';
                     };
                     reader.readAsDataURL(archivoLogo);
-                } else {
-                    btnDescargar.style.display = 'block';
-                }
+                } else { btnDescargar.style.display = 'block'; }
             }, 200);
         }
 
         function descargarQR() {
             const canvas = contenedorQR.querySelector('canvas');
-            const textoInput = document.getElementById('qr-text').value;
             if (!canvas) return;
-
             const tempCanvas = document.createElement('canvas');
             const context = tempCanvas.getContext('2d');
             const padding = 60; 
             tempCanvas.width = canvas.width + (padding * 2);
             tempCanvas.height = canvas.height + (padding * 2);
 
-            const borderRadius = 80; 
             context.fillStyle = '#ffffff';
             context.beginPath();
-            context.roundRect(0, 0, tempCanvas.width, tempCanvas.height, borderRadius);
+            context.roundRect(0, 0, tempCanvas.width, tempCanvas.height, 80);
             context.fill();
-
             context.drawImage(canvas, padding, padding);
 
             if (logoWrapper.style.display === 'block') {
@@ -225,15 +238,13 @@
                 context.drawImage(logoImage, x + (size * 0.1), y + (size * 0.1), size * 0.8, size * 0.8);
             }
             
-            const nombreArchivo = textoInput.replace(/[^a-z0-9]/gi, '_').substring(0, 15) || 'QR_BAMX';
             const link = document.createElement('a');
-            link.download = `QR_${nombreArchivo}.png`;
+            link.download = `QR_BAMX.png`;
             link.href = tempCanvas.toDataURL("image/png");
             link.click();
         }
     </script>
 </body>
 </html>
-
 
 
